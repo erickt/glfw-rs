@@ -20,21 +20,23 @@ fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
+#[allow(unused_variable)]
 fn main() {
-    do glfw::start {
-        do glfw::Monitor::get_primary().map |monitor| {
-                println!("{:s}:", monitor.get_name());
-                println!("    {:s}\n", monitor.get_video_mode().unwrap().to_str());
-        };
+    let glfw = glfw::init();
 
-        println("Available monitors\n\
-                     ------------------");
-        do glfw::Monitor::get_connected().map |monitor| {
+    do glfw::Monitor::get_primary().map |monitor| {
             println!("{:s}:", monitor.get_name());
+            println!("    {:s}\n", monitor.get_video_mode().unwrap().to_str());
+    };
 
-            do monitor.get_video_modes().map |mode| {
-                println!("  {:s}", mode.to_str());
-            }
-        };
-    }
+    println("Available monitors\n\
+                 ------------------");
+
+    do glfw::Monitor::get_connected().map |monitor| {
+        println!("{:s}:", monitor.get_name());
+
+        do monitor.get_video_modes().map |mode| {
+            println!("  {:s}", mode.to_str());
+        }
+    };
 }

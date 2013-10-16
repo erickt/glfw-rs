@@ -22,19 +22,20 @@ fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
+#[allow(unused_variable)]
 fn main() {
     glfw::set_error_callback(error_callback);
 
-    do glfw::start {
-        let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).unwrap();
+    let glfw = glfw::init();
 
-        window.make_context_current();
-        window.set_key_callback(key_callback);
-        glfw::set_swap_interval(1);
+    let window = glfw::Window::create(300, 300, "Clipboard Test", glfw::Windowed).unwrap();
 
-        while !window.should_close() {
-            glfw::poll_events();
-        }
+    window.make_context_current();
+    window.set_key_callback(key_callback);
+    glfw::set_swap_interval(1);
+
+    while !window.should_close() {
+        glfw::poll_events();
     }
 }
 

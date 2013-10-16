@@ -250,37 +250,32 @@ pub type GLProc = ffi::GLFWglproc;
 
 /// Initialise glfw. This must be called on the main platform thread.
 ///
-/// Returns `true` if the initialisation was successful, otherwise `false`.
-///
 /// Wrapper for `glfwInit`.
-#[fixed_stack_segment] #[inline(never)]
-pub fn init() -> Result<(),()> {
-    match unsafe { ffi::glfwInit() } {
-        ffi::TRUE => Ok(()),
-        _         => Err(()),
+pub fn init() -> Option<Context> {
+    Context::init()
+}
+
+pub struct Context;
+
+impl Context {
+    #[fixed_stack_segment] #[inline(never)]
+    pub fn init() -> Option<Context> {
+        match unsafe { ffi::glfwInit() } {
+            ffi::TRUE => Some(Context),
+            _         => None,
+        }
     }
+
+    pub fn terminate(self) {}
 }
 
-/// Terminate glfw. This must be called on the main platform thread.
-///
-/// Wrapper for `glfwTerminate`.
-#[fixed_stack_segment] #[inline(never)]
-pub fn terminate() {
-    unsafe { ffi::glfwTerminate() }
-}
-
-/// Initialises GLFW, automatically calling `glfw::terminate` on exit or
-/// failure. Fails if the initialisation was unsuccessful.
-///
-/// # Parameters
-///
-/// - `f`: A closure to be called after the GLFW is initialised.
-pub fn start(f: ~fn()) {
-    use std::unstable::finally::Finally;
-    if init().is_ok() {
-        f.finally(terminate);
-    } else {
-        fail!(~"Failed to initialize GLFW");
+impl Drop for Context {
+    /// Terminate glfw. This must be called on the main platform thread.
+    ///
+    /// Wrapper for `glfwTerminate`.
+    #[fixed_stack_segment] #[inline(never)]
+    fn drop(&mut self) {
+        unsafe { ffi::glfwTerminate() }
     }
 }
 

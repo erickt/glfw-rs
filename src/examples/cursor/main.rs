@@ -20,37 +20,38 @@ fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
+#[allow(unused_variable)]
 fn main() {
     do glfw::set_error_callback |_, description| {
         println!("GLFW Error: {:s}", description);
     }
 
-    do glfw::start {
-        let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
+    let glfw = glfw::init();
 
-        window.set_cursor_mode(glfw::CursorDisabled);
-        window.make_context_current();
+    let window = glfw::Window::create(800, 600, "Hello, I am a window.", glfw::Windowed).unwrap();
 
-        do window.set_cursor_pos_callback |_, xpos, ypos| {
-            println!("Cursor position: ({}, {})", xpos, ypos);
-        }
+    window.set_cursor_mode(glfw::CursorDisabled);
+    window.make_context_current();
 
-        do window.set_key_callback |window, key, _, action, _| {
-            match (action, key) {
-                (glfw::Press, glfw::KeyEscape) => window.set_should_close(true),
-                (glfw::Press, glfw::KeySpace) => {
-                    match window.get_cursor_mode() {
-                        glfw::CursorDisabled => window.set_cursor_mode(glfw::CursorNormal),
-                        glfw::CursorNormal   => window.set_cursor_mode(glfw::CursorDisabled),
-                        _ => {}
-                    }
+    do window.set_cursor_pos_callback |_, xpos, ypos| {
+        println!("Cursor position: ({}, {})", xpos, ypos);
+    }
+
+    do window.set_key_callback |window, key, _, action, _| {
+        match (action, key) {
+            (glfw::Press, glfw::KeyEscape) => window.set_should_close(true),
+            (glfw::Press, glfw::KeySpace) => {
+                match window.get_cursor_mode() {
+                    glfw::CursorDisabled => window.set_cursor_mode(glfw::CursorNormal),
+                    glfw::CursorNormal   => window.set_cursor_mode(glfw::CursorDisabled),
+                    _ => {}
                 }
-                _ => {}
             }
+            _ => {}
         }
+    }
 
-        while !window.should_close() {
-            glfw::poll_events();
-        }
+    while !window.should_close() {
+        glfw::poll_events();
     }
 }

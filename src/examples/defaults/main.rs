@@ -24,48 +24,49 @@ fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
+#[allow(unused_variable)]
 fn main() {
     glfw::set_error_callback(error_callback);
 
-    do glfw::start {
-        glfw::window_hint::visible(true);
+    let glfw = glfw::init();
 
-        let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
+    glfw::window_hint::visible(true);
 
-        window.make_context_current();
+    let window = glfw::Window::create(640, 480, "Defaults", glfw::Windowed).unwrap();
 
-        let (width, height) = window.get_size();
-        println!("window size: ({}, {})", width, height);
+    window.make_context_current();
 
-        println!("Context version: {:s}",         window.get_context_version().to_str());
-        println!("OpenGL forward compatible: {}", window.is_opengl_forward_compat());
-        println!("OpenGL debug context: {}",      window.is_opengl_debug_context());
-        println!("OpenGL profile: {}",            window.get_opengl_profile());
+    let (width, height) = window.get_size();
+    println!("window size: ({}, {})", width, height);
 
-        let gl_params = [
-            (gl::RED_BITS,          None,   "red bits"          ),
-            (gl::GREEN_BITS,        None,   "green bits"        ),
-            (gl::BLUE_BITS,         None,   "blue bits"         ),
-            (gl::ALPHA_BITS,        None,   "alpha bits"        ),
-            (gl::DEPTH_BITS,        None,   "depth bits"        ),
-            (gl::STENCIL_BITS,      None,   "stencil bits"      ),
-            (gl::ACCUM_RED_BITS,    None,   "accum red bits"    ),
-            (gl::ACCUM_GREEN_BITS,  None,   "accum green bits"  ),
-            (gl::ACCUM_BLUE_BITS,   None,   "accum blue bits"   ),
-            (gl::ACCUM_ALPHA_BITS,  None,   "accum alpha bits"  ),
-            (gl::STEREO,            None,   "stereo"            ),
-            (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
-        ];
+    println!("Context version: {:s}",         window.get_context_version().to_str());
+    println!("OpenGL forward compatible: {}", window.is_opengl_forward_compat());
+    println!("OpenGL debug context: {}",      window.is_opengl_debug_context());
+    println!("OpenGL profile: {}",            window.get_opengl_profile());
 
-        for &(param, ext, name) in gl_params.iter() {
-            if do ext.map_default(true) |&s| {
-                glfw::extension_supported(s)
-            } {
-                let value = 0;
-                unsafe { gl::GetIntegerv(param, &value) };
-                println!("OpenGL {:s}: {}", name, value);
-            };
-        }
+    let gl_params = [
+        (gl::RED_BITS,          None,   "red bits"          ),
+        (gl::GREEN_BITS,        None,   "green bits"        ),
+        (gl::BLUE_BITS,         None,   "blue bits"         ),
+        (gl::ALPHA_BITS,        None,   "alpha bits"        ),
+        (gl::DEPTH_BITS,        None,   "depth bits"        ),
+        (gl::STENCIL_BITS,      None,   "stencil bits"      ),
+        (gl::ACCUM_RED_BITS,    None,   "accum red bits"    ),
+        (gl::ACCUM_GREEN_BITS,  None,   "accum green bits"  ),
+        (gl::ACCUM_BLUE_BITS,   None,   "accum blue bits"   ),
+        (gl::ACCUM_ALPHA_BITS,  None,   "accum alpha bits"  ),
+        (gl::STEREO,            None,   "stereo"            ),
+        (gl::SAMPLES_ARB,       Some("GL_ARB_multisample"), "FSAA samples" ),
+    ];
+
+    for &(param, ext, name) in gl_params.iter() {
+        if do ext.map_default(true) |s| {
+            glfw::extension_supported(s)
+        } {
+            let value = 0;
+            unsafe { gl::GetIntegerv(param, &value) };
+            println!("OpenGL {:s}: {}", name, value);
+        };
     }
 }
 

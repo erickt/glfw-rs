@@ -47,32 +47,33 @@ fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
+#[allow(unused_variable)]
 fn main() {
     do glfw::set_error_callback |_, msg| {
         println!("GLFW Error: {:s}", msg);
     }
 
-    do glfw::start {
-        let window = glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed).unwrap();
+    let glfw = glfw::init();
 
-        do window.set_cursor_pos_callback |_, x, y| {
-            State::update(x, y);
+    let window = glfw::Window::create(300, 300, "Move cursor in window", glfw::Windowed).unwrap();
+
+    do window.set_cursor_pos_callback |_, x, y| {
+        State::update(x, y);
+    }
+
+    do window.set_key_callback |win, key, _, action, _mods| {
+        if action == glfw::Press && key == glfw::KeyEscape {
+            win.set_should_close(true);
         }
+    }
+    window.make_context_current();
 
-        do window.set_key_callback |win, key, _, action, _mods| {
-            if action == glfw::Press && key == glfw::KeyEscape {
-                win.set_should_close(true);
-            }
-        }
-        window.make_context_current();
+    while !window.should_close() {
+        glfw::poll_events();
 
-        while !window.should_close() {
-            glfw::poll_events();
-
-            do State::get_pos().map |&(x, y)| {
-                window.set_title(format!("({}, {})", x, y));
-            };
-        }
+        do State::get_pos().map |(x, y)| {
+            window.set_title(format!("({}, {})", x, y));
+        };
     }
 }
 

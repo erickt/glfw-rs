@@ -13,6 +13,7 @@ fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
+#[allow(unused_variable)]
 fn main() {
     // Set an error callback
     do glfw::set_error_callback |_, description| {
@@ -20,21 +21,21 @@ fn main() {
     }
 
     // Initialize the library
-    do glfw::start {
-        // Create a windowed mode window and its OpenGL context
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+    let glfw = glfw::init();
 
-        // Make the window's context current
-        window.make_context_current();
+    // Create a windowed mode window and its OpenGL context
+    let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
 
-        // Loop until the user closes the window
-        while !window.should_close() {
-            // Swap front and back buffers
-            window.swap_buffers();
+    // Make the window's context current
+    window.make_context_current();
 
-            // Poll for and process events
-            glfw::poll_events();
-        }
+    // Loop until the user closes the window
+    while !window.should_close() {
+        // Swap front and back buffers
+        window.swap_buffers();
+
+        // Poll for and process events
+        glfw::poll_events();
     }
 }
 ~~~

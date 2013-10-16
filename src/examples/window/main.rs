@@ -22,20 +22,21 @@ fn start(argc: int, argv: **u8) -> int {
     std::rt::start_on_main_thread(argc, argv, main)
 }
 
+#[allow(unused_variable)]
 fn main() {
     do glfw::set_error_callback |_, msg| {
         println!("GLFW Error: {:s}", msg);
     }
 
-    do glfw::start {
-        let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
+    let glfw = glfw::init();
 
-        window.set_key_callback(key_callback);
-        window.make_context_current();
+    let window = glfw::Window::create(300, 300, "Hello this is window", glfw::Windowed).unwrap();
 
-        while !window.should_close() {
-            glfw::poll_events();
-        }
+    window.set_key_callback(key_callback);
+    window.make_context_current();
+
+    while !window.should_close() {
+        glfw::poll_events();
     }
 }
 
