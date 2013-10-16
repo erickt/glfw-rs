@@ -255,18 +255,48 @@ pub fn init() -> Option<Context> {
     Context::init()
 }
 
-pub struct Context;
+pub struct Context {
+    priv error_events: ~[ErrorEvent],
+}
 
 impl Context {
     #[fixed_stack_segment] #[inline(never)]
     pub fn init() -> Option<Context> {
         match unsafe { ffi::glfwInit() } {
-            ffi::TRUE => Some(Context),
+            ffi::TRUE => Some(Context { error_events: ~[] }),
             _         => None,
         }
     }
 
+    pub fn peek_error<'a>(&'a self) -> Option<&'a ErrorEvent> {
+        self.error_events.head_opt()
+    }
+
+    pub fn get_error(&mut self) -> Option<ErrorEvent> {
+        self.error_events.shift_opt()
+    }
+
+    pub fn iter_errors<'a>(&'a mut self) -> ErrorEventIterator<'a> {
+        ErrorEventIterator { context: self }
+    }
+
+    pub fn clear_errors(&mut self) {
+        self.error_events = ~[];
+    }
+
     pub fn terminate(self) {}
+}
+
+pub type ErrorEvent = (Error, ~str);
+
+pub struct ErrorEventIterator<'self> {
+    context: &'self mut Context,
+}
+
+impl<'self> Iterator<(Error, ~str)> for ErrorEventIterator<'self> {
+    fn next(&mut self) -> Option<ErrorEvent> {
+        self.context.get_error()
+    }
 }
 
 impl Drop for Context {
